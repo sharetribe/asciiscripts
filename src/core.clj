@@ -146,6 +146,12 @@
                start
                end)))))
 
+(defmethod apply-op :resize [data [_ {:keys [width height]}]]
+  (update data :header (fn [header]
+                         (cond-> header
+                           width (assoc :width width)
+                           height (assoc :height height)))))
+
 (defn apply-ops [data ops]
   (reduce apply-op data ops))
 
