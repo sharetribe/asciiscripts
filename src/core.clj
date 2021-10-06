@@ -182,7 +182,20 @@
                   [:pause {:id [493], :d 2M}]
 
                   ])
-      #_(pp) ;; debugging
-      (write-cast "../out2.cast")
+      (pp) ;; debugging
+      #_(write-cast "../out2.cast")
       )
+
+  (-> "../array-params-serialize.cast"
+      read-cast
+      (apply-ops [[:resize {:width 86 :height 25}]
+                  [:cut-start {:end [31]}]
+                  [:split {:start [31] :end [210]}]
+                  [:quantize {:min 0.1M :max 0.1M}]
+                  [:pause {:id [216], :d 2M}]])
+      #_(pp) ;; debugging
+      (write-cast "../array-params-serialize-edited.cast")
+      )
+
+
   )
