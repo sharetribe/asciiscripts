@@ -93,57 +93,61 @@
   "Apply operation"
   (fn [_ [op-name]] op-name))
 
-(defmethod apply-op :cut-start [evts [_ {:keys [end]}]]
+(defmethod apply-op :cut-start [data [_ {:keys [end]}]]
   ;; :cut-start cuts from the beginnign to the given end.
-  (:evts
-   (reduce
-    (fn [memo e]
-      (if (:cut memo)
-        ;; cutting
-        (if (= (:id e) end)
-          ;; found end
-          (assoc memo :cut false)
+  (update data :events #(:evts
+                         (reduce
+                          (fn [memo e]
+                            (if (:cut memo)
+                              ;; cutting
+                              (if (= (:id e) end)
+                                ;; found end
+                                (assoc memo :cut false)
 
-          memo)
+                                memo)
 
-        (update memo :evts conj e)))
-    {:cut true :evts []}
-    evts)))
+                              (update memo :evts conj e)))
+                          {:cut true :evts []}
+                          %))))
 
-(defmethod apply-op :quantize [evts [_ opts]]
-  (map (fn [{:keys [d] :as evt}]
-         (assoc evt :d (min (max d (:min opts)) (:max opts))))
-       evts))
+(defmethod apply-op :quantize [data [_ opts]]
+  (update data :events
+          #(map (fn [{:keys [d] :as evt}]
+                  (assoc evt :d (min (max d (:min opts)) (:max opts))))
+                %)))
 
-(defmethod apply-op :pause [evts [_ {:keys [id d]}]]
+(defmethod apply-op :pause [data [_ {:keys [id d]}]]
   ;; Add pause
-  (map (fn [e] (if (= (:id e) id)
-                 (update e :d #(+ % d))
-                 e))
-       evts))
+  (update data :events
+          (fn [evts]
+            (map (fn [e] (if (= (:id e) id)
+                           (update e :d #(+ % d))
+                           e))
+                 evts))))
 
-(defmethod apply-op :split [evts [_ {:keys [start end d]}]]
+(defmethod apply-op :split [data [_ {:keys [start end d]}]]
   (let [r 10M] ;; Adds some randomness to the splitted value, looks more realistic typing.
-    (:evts
-     (reduce-part
-      (fn [evts e]
-        (let [{:keys [data id]} e]
-          (if (or (str/blank? data)
-                  (= (count data) 1)
-                  (re-find #"\p{C}" data))
-            (conj evts e)
+    (update data :events
+            #(:evts
+              (reduce-part
+               (fn [evts e]
+                 (let [{:keys [data id]} e]
+                   (if (or (str/blank? data)
+                           (= (count data) 1)
+                           (re-find #"\p{C}" data))
+                     (conj evts e)
 
-            ;; split only if a) not blank b) count more than 1 c) does not contain non-printable characters
-            (concat evts (map-indexed (fn [i chr]
-                                        {:id (conj id i)
-                                         :d (+ d (* d (- (rand r) (/ r 2M)))) ;; lol a bit confusing logic here.
-                                         :data chr}) (str/split (:data e) #""))))))
-      evts
-      start
-      end))))
+                     ;; split only if a) not blank b) count more than 1 c) does not contain non-printable characters
+                     (concat evts (map-indexed (fn [i chr]
+                                                 {:id (conj id i)
+                                                  :d (+ d (* d (- (rand r) (/ r 2M)))) ;; lol a bit confusing logic here.
+                                                  :data chr}) (str/split (:data e) #""))))))
+               %
+               start
+               end)))))
 
 (defn apply-ops [data ops]
-  (update data :events #(reduce apply-op % ops)))
+  (reduce apply-op data ops))
 
 (comment
   ;; Example.
