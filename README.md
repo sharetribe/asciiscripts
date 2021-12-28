@@ -26,8 +26,8 @@ There's no CLI implemented. You should open a Clojure REPL and call functions fr
                 ;; cut removes events in given range
                 [:cut {:start [2717] :end [2719]}]
 
-                ;; combine merges events together
-                [:combine {:start [2148] :end [2566]}]
+                ;; merge events together
+                [:merge {:start [2148] :end [2566]}]
 
                 ;; pause adds a pause before the given event
                 [:pause {:id [2072] :d 0.8M}]

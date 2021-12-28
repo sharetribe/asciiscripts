@@ -144,30 +144,30 @@
                           {:cut false :evts []}
                           %))))
 
-(defn- combine
+(defn- merge-events
   [a b]
   (update a :data str (:data b)))
 
-(defmethod apply-op :combine [data [_ {:keys [start end]}]]
+(defmethod apply-op :merge [data [_ {:keys [start end]}]]
   ;; :combines output from start to end into single event
   (update data :events #(:evts
                          (reduce
                           (fn [memo e]
-                            (if (:combine memo)
+                            (if (:merge memo)
                               ;; combining
-                              (let [combined (combine (:combined memo) e)]
+                              (let [merged (merge-events (:merged memo) e)]
                                 (if (= (:id e) end)
                                   (-> memo
-                                      (assoc :combine false)
-                                      (update :evts conj combined))
-                                  (assoc memo :combined combined)))
+                                      (assoc :merge false)
+                                      (update :evts conj merged))
+                                  (assoc memo :merged merged)))
 
                               (if (= (:id e) start)
                                 (-> memo
-                                    (assoc :combine true)
-                                    (assoc :combined e))
+                                    (assoc :merge true)
+                                    (assoc :merged e))
                                 (update memo :evts conj e))))
-                          {:combine false :evts []}
+                          {:merge false :evts []}
                           %))))
 
 (defmethod apply-op :quantize [data [_ opts]]
@@ -242,7 +242,7 @@
                   [:split {:start [2891] :end [2950] :d 0.035M}]
                   [:quantize {:min 0.01M :max 0.1M}]
                   [:cut {:start [2717] :end [2719]}]
-                  [:combine {:start [2148] :end [2566]}]
+                  [:merge {:start [2148] :end [2566]}]
 
                   [:pause {:id [2072] :d 0.8M}]
                   [:pause {:id [2567 0] :d 2M}]
