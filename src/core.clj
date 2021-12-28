@@ -110,6 +110,66 @@
                           {:cut true :evts []}
                           %))))
 
+(defmethod apply-op :cut-end [data [_ {:keys [start]}]]
+  ;; :cut-end cuts from the given start to the end.
+  (update data :events #(:evts
+                         (reduce
+                          (fn [memo e]
+                            (if (:cut memo)
+                              ;; cutting
+                              memo
+
+                              (if (= (:id e) start)
+                                (assoc memo :cut true)
+                                (update memo :evts conj e))))
+                          {:cut false :evts []}
+                          %))))
+
+(defmethod apply-op :cut [data [_ {:keys [start end]}]]
+  ;; :cut-end cuts from the given start to the given end.
+  (update data :events #(:evts
+                         (reduce
+                          (fn [memo e]
+                            (if (:cut memo)
+                              ;; cutting
+                              (if (= (:id e) end)
+                                (-> memo
+                                    (assoc :cut false)
+                                    (update :evts conj e))
+                                memo)
+
+                              (if (= (:id e) start)
+                                (assoc memo :cut true)
+                                (update memo :evts conj e))))
+                          {:cut false :evts []}
+                          %))))
+
+(defn- combine
+  [a b]
+  (update a :data str (:data b)))
+
+(defmethod apply-op :combine [data [_ {:keys [start end]}]]
+  ;; :combines output from start to end into single event
+  (update data :events #(:evts
+                         (reduce
+                          (fn [memo e]
+                            (if (:combine memo)
+                              ;; combining
+                              (let [combined (combine (:combined memo) e)]
+                                (if (= (:id e) end)
+                                  (-> memo
+                                      (assoc :combine false)
+                                      (update :evts conj combined))
+                                  (assoc memo :combined combined)))
+
+                              (if (= (:id e) start)
+                                (-> memo
+                                    (assoc :combine true)
+                                    (assoc :combined e))
+                                (update memo :evts conj e))))
+                          {:combine false :evts []}
+                          %))))
+
 (defmethod apply-op :quantize [data [_ opts]]
   (update data :events
           #(map (fn [{:keys [d] :as evt}]
@@ -152,11 +212,45 @@
                            width (assoc :width width)
                            height (assoc :height height)))))
 
+(defmethod apply-op :str-replace [data [_ {:keys [match replacement]}]]
+  (update data
+          :events
+          (fn [evts]
+            (map (fn [e]
+                   (update e :data str/replace match replacement))
+             evts))))
+
 (defn apply-ops [data ops]
   (reduce apply-op data ops))
 
 (comment
   ;; Example.
+
+  ;; This is the script I used to produce git for querying users
+
+  (-> "../flex-integration-sdk-js/user-search-demo2.cast"
+      read-cast
+      (apply-ops [[:cut-start {:end [1477]}]
+                  ;; Strip undefined REPL output for comments and other expressions that return undefined
+                  [:str-replace {:match #"^\[90mundefined\[39m\r\n" :replacement ""}]
+                  [:split {:start [1487] :end [2062] :d 0.025M}]
+                  [:split {:start [2072] :end [2770] :d 0.025M}]
+                  [:split {:start [2778] :end [2882] :d 0.025M}]
+                  [:split {:start [2891] :end [2950] :d 0.025M}]
+                  [:quantize {:min 0.01M :max 0.1M}]
+                  [:cut {:start [2717] :end [2719]}]
+                  [:combine {:start [2148] :end [2566]}]
+
+                  [:pause {:id [2072] :d 0.8M}]
+                  [:pause {:id [2567 0] :d 2M}]
+                  [:pause {:id [2778] :d 0.8M}]
+                  [:pause {:id [2891] :d 0.8M}]
+                  [:pause {:id [2959] :d 2M}]
+
+                  [:cut-end {:start [2960]}]])
+
+      (write-cast "../flex-integration-sdk-js/user-search-demo-edited.cast"))
+
   ;; This is the script that I used to produce the gif for quering
   ;; listings by multiple IDs
 
