@@ -9,26 +9,35 @@ There's no CLI implemented. You should open a Clojure REPL and call functions fr
 ``` clojure
 (-> "input.cast"
     read-cast
-    (apply-ops [[:cut-start {:end [44]}]
-                [:split {:start [45] :end [100] :d 0.035M}]
-                [:split {:start [260] :end [286] :d 0.025M}]
-                [:split {:start [299] :end [373] :d 0.025M}]
-                [:split {:start [382] :end [484] :d 0.025M}]
+    (apply-ops [[:cut-start {:end [1477]}]
+
+                ;; Strip undefined REPL output for comments and other expressions that return undefined
+                [:str-replace {:match #"^\[90mundefined\[39m\r\n" :replacement ""}]
+
+                ;; Split breaks events into sub events to mimic typing
+                [:split {:start [1487] :end [2062] :d 0.025M}]
+                [:split {:start [2072] :end [2770] :d 0.025M}]
+                [:split {:start [2778] :end [2882] :d 0.025M}]
+                [:split {:start [2891] :end [2950] :d 0.025M}]
+
+                ;; quantize makes pauses uniform random
                 [:quantize {:min 0.01M :max 0.1M}]
-                [:pause {:id [55], :d 0.5M}]
-                [:pause {:id [79], :d 0.5M}]
-                [:pause {:id [119], :d 0.5M}]
 
-                [:pause {:id [260], :d 0.8M}]
-                [:pause {:id [286], :d 0.8M}]
-                [:pause {:id [299], :d 0.8M}]
-                [:pause {:id [373], :d 0.8M}]
-                [:pause {:id [382], :d 0.8M}]
-                [:pause {:id [484], :d 0.8M}]
+                ;; cut removes events in given range
+                [:cut {:start [2717] :end [2719]}]
 
-                [:pause {:id [493], :d 2M}]
+                ;; combine merges events together
+                [:combine {:start [2148] :end [2566]}]
 
-                ])
+                ;; pause adds a pause before the given event
+                [:pause {:id [2072] :d 0.8M}]
+                [:pause {:id [2567 0] :d 2M}]
+                [:pause {:id [2778] :d 0.8M}]
+                [:pause {:id [2891] :d 0.8M}]
+                [:pause {:id [2959] :d 2M}]
+
+                [:cut-end {:start [2960]}]])
+
     #_(pp) ;; debugging
     (write-cast "output.cast")
     )
