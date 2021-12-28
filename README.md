@@ -11,7 +11,7 @@ There's no CLI implemented. You should open a Clojure REPL and call functions fr
     read-cast
     (apply-ops [[:cut-start {:end [1477]}]
 
-                ;; Strip undefined REPL output for comments and other expressions that return undefined
+                ;; Strip undesired output from the recorded session
                 [:str-replace {:match #"^\[90mundefined\[39m\r\n" :replacement ""}]
 
                 ;; Split breaks events into sub events to mimic typing
