@@ -57,9 +57,11 @@ There's no CLI implemented. You should open a Clojure REPL and call functions fr
   * Cut unnecessary stuff from the beginning (`:cut-start` op)
   * Cut unnecessary stuff from the end (`:cut-end` op)
   * Split events (`:split` op) if you pasted a large chunk at once
-  * Manually add some pauses (`:pause` op) after each command to give the viewer time to read what happened
   * Quantize pauses (`:quantize` op) to make too long pauses shorter and too
     short pauses longer
+  * Manually add some pauses (`:pause` op) after each command to give the viewer
+    time to read what happened. (And make sure you add pauses *after*
+    `:quantize`, otherwise quantize will override them)
   * Resize (`:resize` op) the recording to certain width and height
 
 11. Use [asciicast2git](https://github.com/asciinema/asciicast2gif) to convert `.cast` file to `.git`
