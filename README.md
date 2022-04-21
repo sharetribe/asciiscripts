@@ -64,7 +64,7 @@ There's no CLI implemented. You should open a Clojure REPL and call functions fr
     `:quantize`, otherwise quantize will override them)
   * Resize (`:resize` op) the recording to certain width and height
 
-11. Use [asciicast2git](https://github.com/asciinema/asciicast2gif) to convert `.cast` file to `.git`
+11. When you're done editing, use [asciicast2git](https://github.com/asciinema/asciicast2gif) to convert `.cast` file to `.git`
 
     Example:
 
