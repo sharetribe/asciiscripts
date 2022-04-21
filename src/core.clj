@@ -194,6 +194,7 @@
                  (let [{:keys [data id]} e]
                    (if (or (str/blank? data)
                            (= (count data) 1)
+                           ;; control character
                            (re-find #"\p{C}" data))
                      (conj evts e)
 
@@ -292,6 +293,18 @@
                   [:pause {:id [216], :d 2M}]])
       #_(pp) ;; debugging
       (write-cast "../array-params-serialize-edited.cast")
+      )
+
+  (-> (read-cast "./gifs/example/original.cast")
+      (apply-ops [[:cut-start {:end [21]}]
+                  [:quantize {:min 0.01M :max 0.1M}]
+                  [:pause {:id [23] :d 1M}]
+                  [:pause {:id [42] :d 2M}]
+                  [:cut-end {:start [85]}]
+                  [:pause {:id [84] :d 2M}]
+                  ])
+      (write-cast "./gifs/example/improved.cast")
+      #_(pp)
       )
 
 
