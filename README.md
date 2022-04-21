@@ -4,7 +4,7 @@
 
 There's no CLI implemented. You should open a Clojure REPL and call functions from there.
 
-## Usage
+## Step-by-step guide
 
 1. Open your favorite text editor. Write all the commands there in advance. We're *not* going to type them to terminal, instead we're going to just *copy-paste* the commands
 2. Install [asciinema](https://asciinema.org/docs/getting-started)
