@@ -327,5 +327,20 @@
       )
   ; => (4 70 118 171 216 261 310 323 328 389 415 465 469 509 564 584 624 656 695 711 729 734 769 816 820 832 837)
 
+  ; Delete user gif
+  (-> (read-cast "./gifs/user-deletion/pre.cast")
+      (apply-ops [
+                  [:resize {:width 80 :height 35}]
+                  [:cut-start {:end [329]}]
+                  [:str-replace {:match #"undefined" :replacement ""}]
+                  [:quantize {:min 0.04M :max 0.5M}]
+                  [:pause {:id [469] :d 1.5M}]
+                  [:pause {:id [734] :d 1.5M}]
+                  [:pause {:id [820] :d 1.5M}]
+                  [:cut-end {:start [821]}]
+                  ])
+      (write-cast "./gifs/user-deletion/post.cast")
+      (pp)
+      )
 
   )
