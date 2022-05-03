@@ -224,6 +224,11 @@
 (defn apply-ops [data ops]
   (reduce apply-op data ops))
 
+(defn return-ids-of-matching [{:keys [events]} match]
+  (->> events
+       (filter #(re-find match (:data %)))
+       (map #(first (:id %)))))
+
 (comment
   ;; Example.
 
@@ -306,6 +311,12 @@
       (write-cast "./gifs/example/improved.cast")
       #_(pp)
       )
+
+  ; Find IDs of where line breaks exist
+  (-> (read-cast "./gifs/user-deletion/pre.cast")
+      (return-ids-of-matching #"\r\r\n")
+      )
+  ; => (4 70 118 171 216 261 310 323 328 389 415 465 469 509 564 584 624 656 695 711 729 734 769 816 820 832 837)
 
 
   )
