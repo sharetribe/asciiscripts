@@ -185,6 +185,15 @@
                            e))
                  evts))))
 
+(defmethod apply-op :pause-matching [data [_ {:keys [d match]}]]
+  ;; Add pause
+  (update data :events
+          (fn [evts]
+            (map (fn [e] (if (re-find match (:data e))
+                           (update e :d #(+ % d))
+                           e))
+                 evts))))
+
 (defmethod apply-op :split [data [_ {:keys [start end d]}]]
   (let [r 10M] ;; Adds some randomness to the splitted value, looks more realistic typing.
     (update data :events
