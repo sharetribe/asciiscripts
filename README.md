@@ -27,14 +27,14 @@ There's no CLI implemented. You should open a Clojure REPL and call functions fr
 6. Copy the recording to `./gifs/...` from the temporary location
 
    ```
-   mv /var/folders/0p/vtdv4p053pd6gkx8d5p98h000000gn/T/tmpoig8qzvd-ascii.cast ./gits/my-gif/original.cast
+   mv /var/folders/0p/vtdv4p053pd6gkx8d5p98h000000gn/T/tmpoig8qzvd-ascii.cast ./gifs/my-gif/original.cast
    ```
 
 7. In your Clojure editor, open the asciiscripts `core` namespace `asciiscripts/src/core.clj`
 
 8. Connect to REPL
 
-9. In the `(comment ,,,)` block, add a new section for you GIF, something like:
+9. In the `(comment ,,,)` block, add a new section for your GIF, something like:
 
     ```clj
      (-> (read-cast "./gifs/my-gif/original.cast")
@@ -64,7 +64,7 @@ There's no CLI implemented. You should open a Clojure REPL and call functions fr
     `:quantize`, otherwise quantize will override them)
   * Resize (`:resize` op) the recording to certain width and height
 
-11. When you're done editing, use [asciicast2git](https://github.com/asciinema/asciicast2gif) to convert `.cast` file to `.git`
+11. When you're done editing, use [asciicast2git](https://github.com/asciinema/asciicast2gif) to convert `.cast` file to `.gif` file
 
     Example:
 
